@@ -1,39 +1,56 @@
-import speech_recognition as sr
+"""
+Install the Google AI Python SDK
+
+$ pip install google-generativeai
+
+See the getting started guide for more information:
+https://ai.google.dev/gemini-api/docs/get-started/python
+"""
+
+import os
+
 import google.generativeai as genai
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
-# Configure the API key
-GOOGLE_API_KEY = "AIzaSyBzgOrW5BHN6Npxb6wha6Cm1Of8QhVpci8"
-genai.configure(api_key=GOOGLE_API_KEY)
+# Create the model
+# See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
+generation_config = {
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 64,
+  "max_output_tokens": 8192,
+  "response_mime_type": "text/plain",
+}
+safety_settings = [
+  {
+    "category": "HARM_CATEGORY_HARASSMENT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE",
+  },
+  {
+    "category": "HARM_CATEGORY_HATE_SPEECH",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE",
+  },
+  {
+    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE",
+  },
+  {
+    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+    "threshold": "BLOCK_MEDIUM_AND_ABOVE",
+  },
+]
 
-# Create the Gemini text generation model
-gemini_model = genai.GenerativeModel(model_name="gemini-1.5-flash-latest")
+model = genai.GenerativeModel(
+  model_name="gemini-1.5-flash",
+  safety_settings=safety_settings,
+  generation_config=generation_config,
+)
 
-# Initialize the speech recognizer
-r = sr.Recognizer()
+chat_session = model.start_chat(
+  history=[
+  ]
+)
 
-# Open the default microphone
-mic = sr.Microphone()
+response = chat_session.send_message("INSERT_INPUT_HERE")
 
-while True:
-    print("Say something...")
-
-    # Capture audio from the microphone
-    with mic as source:
-        audio = r.listen(source)
-
-    try:
-        # Use the Google Speech Recognition engine to transcribe the audio
-        text = r.recognize_google(audio)
-        print("You said:", text)
-
-        # Generate text using Gemini model with the transcribed text as input
-        gemini_response = gemini_model.generate_content([text])
-        print("Gemini response:", gemini_response)
-
-    except sr.UnknownValueError:
-        print("Could not understand audio")
-    except sr.RequestError as e:
-        print("Could not request results from Google Speech Recognition service; {0}".format(e))
-
-    if input("Press Enter to continue or 'q' to quit: ").lower() == 'q':
-        break
+print(response.text)

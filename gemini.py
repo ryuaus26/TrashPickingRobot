@@ -10,7 +10,7 @@ https://ai.google.dev/gemini-api/docs/get-started/python
 import os
 
 import google.generativeai as genai
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+genai.configure(api_key="AIzaSyBzgOrW5BHN6Npxb6wha6Cm1Of8QhVpci8")
 
 # Create the model
 # See https://ai.google.dev/api/python/google/generativeai/GenerativeModel
@@ -51,6 +51,6 @@ chat_session = model.start_chat(
   ]
 )
 
-response = chat_session.send_message("INSERT_INPUT_HERE")
+response = chat_session.send_message("HELLO WHAT is bond angle")
 
 print(response.text)
